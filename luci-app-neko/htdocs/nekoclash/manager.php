@@ -1,30 +1,4 @@
 <?php
-/**
- * MIT License
- *
- * Copyright (c) 2024 Nosignal <https://github.com/nosignals>
- * 
- * Contributors:
- * - bobbyunknown <https://github.com/bobbyunknown>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 
 ob_start();
 include './cfg.php';
@@ -236,29 +210,61 @@ function restore_controller(){
 }
 
 function backupConfig(){
-  shell_exec("/etc/neko/core/neko -b");
-  $dir_path = "/tmp";
-  $file_name = shell_exec("ls /tmp/ | grep neko");
-  $file_path = trim("$dir_path/$file_name");
-  echo $file_path;
-  if (file_exists($file_path)) {
-    echo "Backing configuration, please wait...";
-    ob_clean();
-    header('Content-Description: File Transfer');
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename='.basename($file_name));
-    header('Content-Transfer-Encoding: binary');
-    header('Expires: 0');
-    header('Cache-Control: must-revalidate');
-    header('Pragma: public');
-    header('Content-Length: ' . filesize($file_path));
-  }
-  ob_clean();
-  flush();
-  sleep (2);
-  readfile($file_path);
-  shell_exec("rm -r $file_path");
-  exit;
+    try {
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        shell_exec("/etc/neko/core/neko -b");
+        
+        sleep(1);
+        
+        $backup_files = glob("/tmp/neko_backup_*.tar.gz");
+        if (empty($backup_files)) {
+            throw new Exception('Backup file not found');
+        }
+        
+        usort($backup_files, function($a, $b) {
+            return filemtime($b) - filemtime($a);
+        });
+        $file_path = $backup_files[0];
+        
+        if (!file_exists($file_path)) {
+            throw new Exception('Backup file not found or not accessible');
+        }
+
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/x-gzip');
+        header('Content-Disposition: attachment; filename="'.basename($file_path).'"');
+        header('Content-Transfer-Encoding: binary');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($file_path));
+        
+        if (!readfile($file_path)) {
+            throw new Exception('Failed to send file');
+        }
+        
+        foreach ($backup_files as $old_file) {
+            if ($old_file != $file_path) {
+                @unlink($old_file);
+            }
+        }
+        
+        @unlink($file_path);
+        exit;
+        
+    } catch (Exception $e) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'status' => 'error',
+            'title' => 'Error!',
+            'message' => $e->getMessage(),
+            'icon' => 'error'
+        ]);
+        exit;
+    }
 }
 
 function restoreConfig(){
@@ -320,3 +326,4 @@ if(isset($_POST['action'])) {
     }
 }
 ?>
+

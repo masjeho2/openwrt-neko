@@ -1,31 +1,4 @@
 <?php
-/**
- * MIT License
- *
- * Copyright (c) 2024 Nosignal <https://github.com/nosignals>
- * 
- * Contributors:
- * - bobbyunknown <https://github.com/bobbyunknown>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 include './cfg.php';
 include './manager.php';
 
@@ -537,7 +510,7 @@ if(isset($_POST["file_action"])) {
                         <!-- Upload & Backup Section -->
                         <div class="container container-bg border border-3 rounded-4 col-12 mb-4">
                             <h3 class="mt-3">Upload & Backup file</h3>
-                            <form id="uploadForm" enctype="multipart/form-data">
+                            <form action="manager.php" method="POST" enctype="multipart/form-data">
                                 <table class="table table-borderless">
                                     <tbody>
                                         <tr class="text-center">
@@ -1044,4 +1017,5 @@ function downloadFile(filePath) {
 </script>
 
 <?php include './footer.php'; ?>
+
 
