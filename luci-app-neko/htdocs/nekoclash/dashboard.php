@@ -70,6 +70,7 @@ $port = $config['port'];
 $secret = $config['secret'];
 
 $yacd_link = $_SERVER['HTTP_HOST'] . ":" . $port . "/ui/meta/?hostname=" . $_SERVER['HTTP_HOST'] . "&port=" . $port . "&secret=" . $secret;
+$metacubexd_link = $_SERVER['HTTP_HOST'] . ":" . $port . "/ui/metacubexd/?hostname=" . $_SERVER['HTTP_HOST'] . "&port=" . $port . "&secret=" . $secret;
 
 ?>
 <?php 
@@ -91,7 +92,7 @@ $yacd_link = $_SERVER['HTTP_HOST'] . ":" . $port . "/ui/meta/?hostname=" . $_SER
                                 <i data-feather="external-link" class="feather-sm me-2"></i>
                                 META - YACD
                             </a>
-                            <a class="btn btn-outline-primary" target="_blank" href="http://<?=$yacd_link ?>">
+                            <a class="btn btn-outline-primary" target="_blank" href="http://<?=$metacubexd_link ?>">
                                 <i data-feather="external-link" class="feather-sm me-2"></i>
                                 METACUBEXD
                             </a>
