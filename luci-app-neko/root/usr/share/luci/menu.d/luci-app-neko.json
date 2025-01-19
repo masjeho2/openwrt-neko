@@ -10,7 +10,7 @@
 	},
 
 	"admin/services/neko/neko": {
-		"title": "Home",
+		"title": "HOME",
 		"order": 1,
 		"action": {
 			"type": "view",
@@ -18,30 +18,12 @@
 		}
 	},
 
-	"admin/services/neko/manager": {
-		"title": "Neko File Manager",
+	"admin/services/neko/yacd": {
+		"title": "YACD",
 		"order": 2,
 		"action": {
 			"type": "view",
-			"path": "neko/manager"
-		}
-	},
-
-	"admin/services/neko/yacd": {
-		"title": "YACD",
-		"order": 3,
-		"action": {
-			"type": "view",
 			"path": "neko/yacd"
-		}
-	},
-
-	"admin/services/neko/metacubexd": {
-		"title": "MetaCubeXD",
-		"order": 4,
-		"action": {
-			"type": "view",
-			"path": "neko/metacubexd"
 		}
 	}
 }
