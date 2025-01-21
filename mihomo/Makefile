@@ -31,7 +31,7 @@ PKG_VERSION:=1.19.1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/MetaCubeX/mihomo/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=skip
+PKG_HASH:=54c5e59886749097f845566ddcdaad680994564ec8d852832a94b5aa6f7d1146
 
 PKG_LICENSE:=MIT
 PKG_MAINTAINER:=nosignals
