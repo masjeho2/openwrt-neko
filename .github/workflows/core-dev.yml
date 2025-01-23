@@ -57,7 +57,7 @@ jobs:
           NO_SHFMT_CHECK: 1
         
       - name: Delivering Package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: neko-${{ matrix.release }}_${{ matrix.arch }}
           path: |

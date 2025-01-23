@@ -37,23 +37,37 @@ return view.extend({
         var originalContent = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = '<div class="loading-spinner"></div>';
-
-        return fs.exec('/etc/init.d/neko', [action])
-            .then(function(res) {
-                if (res.code === 0) {
-                    ui.addNotification(null, E('p', _('Service ' + action + ' success')), 'success');
+        
+        var xhr = new Promise(function(resolve, reject) {
+            fs.exec('/etc/init.d/neko', [action])
+                .then(resolve)
+                .catch(reject);
+            
+            setTimeout(function() {
+                resolve({ code: 0 });
+            }, 5000);
+        });
+        
+        return xhr.then(function(res) {
+            if (res.code === 0) {
+                setTimeout(function() {
+                    localStorage.setItem('neko_notification', JSON.stringify({
+                        type: 'success',
+                        message: 'Service ' + action + ' success'
+                    }));
                     window.location.reload();
-                } else {
-                    btn.disabled = false;
-                    btn.innerHTML = originalContent;
-                    ui.addNotification(null, E('p', _('Service ' + action + ' failed: ' + res.stderr)), 'error');
-                }
-            })
-            .catch(function(err) {
+                }, 2000);
+            } else {
                 btn.disabled = false;
                 btn.innerHTML = originalContent;
-                ui.addNotification(null, E('p', _('Service ' + action + ' failed: ' + err)), 'error');
-            });
+                ui.addNotification(null, E('p', _('Service ' + action + ' failed: ' + res.stderr)), 'error');
+            }
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+            ui.addNotification(null, E('p', _('Service ' + action + ' failed: ' + err)), 'error');
+        });
     },
 
     load: function() {
@@ -69,7 +83,15 @@ return view.extend({
                     return fs.read('/etc/neko/tmp/singbox_pid.txt');
                 return '';
             })
-        ]);
+        ]).then(function(data) {
+            var savedNotification = localStorage.getItem('neko_notification');
+            if (savedNotification) {
+                var notification = JSON.parse(savedNotification);
+                ui.addNotification(null, E('p', _(notification.message)), notification.type);
+                localStorage.removeItem('neko_notification');
+            }
+            return data;
+        });
     },
 
     render: function(data) {
@@ -109,18 +131,16 @@ return view.extend({
                     }
                 `),
                 E('h2', {}, [ _('NekoClash') ]),
-                E('div', { 'class': 'cbi-map-descr' }, [ _('Mihomo/Singbox Core') ]),
+                E('div', { 'class': 'cbi-map-descr', 'style': 'margin-bottom: 10px;' }, [ 
+                    E('span', { 'style': 'font-weight: bold; font-size: 20px;' }, [ _('Mihomo/Singbox Core') ]),
+                    E('div', { 'style': 'margin-top: 10px;padding-left: 10px;' }, [
+                        E('span', {'style': 'font-weight: bold;'}, [ core_mode.toUpperCase() + ': ' ]),
+                        E('span', { 'style': isRunning ? 'color:green' : 'color:red' },
+                            [ (isRunning ? _('Running') : _('Stopped')) ])
+                    ])
+                ]),
                 E('div', { 'class': 'cbi-section' }, [
                     E('div', { 'class': 'cbi-section-node' }, [
-                        E('div', { 'class': 'cbi-value' }, [
-                            E('label', { 'class': 'cbi-value-title' }, [ _('Service Status') ]),
-                            E('div', { 'class': 'cbi-value-field' }, [
-                                E('div', {}, [
-                                    E('span', { 'style': isRunning ? 'color:green' : 'color:red' },
-                                        [ core_mode.toUpperCase() + ': ' + (isRunning ? _('Running') : _('Stopped')) ])
-                                ])
-                            ])
-                        ]),
                         E('div', { 'class': 'cbi-value-field' }, [
                             isRunning ? E('button', {
                                 'class': 'cbi-button cbi-button-negative',
