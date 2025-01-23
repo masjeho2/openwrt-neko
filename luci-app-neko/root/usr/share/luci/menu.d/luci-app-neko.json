@@ -25,5 +25,14 @@
 			"type": "view",
 			"path": "neko/yacd"
 		}
+	},
+
+	"admin/services/neko/manager": {
+		"title": "FILEMANAGER",
+		"order": 3,
+		"action": {
+			"type": "view",
+			"path": "neko/manager"
+		}
 	}
 }

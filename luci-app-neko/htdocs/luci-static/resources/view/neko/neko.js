@@ -59,6 +59,11 @@ return view.extend({
     load: function() {
         return Promise.all([
             uci.load('neko'),
+            L.resolveDefault(fs.stat('/etc/neko/tmp/neko_pid.txt'), null).then(function(stat) {
+                if (stat)
+                    return fs.read('/etc/neko/tmp/neko_pid.txt');
+                return '';
+            }),
             L.resolveDefault(fs.stat('/etc/neko/tmp/singbox_pid.txt'), null).then(function(stat) {
                 if (stat)
                     return fs.read('/etc/neko/tmp/singbox_pid.txt');
@@ -69,7 +74,14 @@ return view.extend({
 
     render: function(data) {
         let show_luci = uci.get('neko', 'cfg', 'show_luci');
-        let running = data[1].trim() !== '';
+        let core_mode = uci.get('neko', 'cfg', 'core_mode');
+        
+        let isRunning = false;
+        if (core_mode === 'mihomo') {
+            isRunning = data[1].trim() !== '';
+        } else if (core_mode === 'singbox') {
+            isRunning = data[2].trim() !== '';
+        }
 
         if (show_luci === '1') {
             return E('iframe', {
@@ -103,12 +115,14 @@ return view.extend({
                         E('div', { 'class': 'cbi-value' }, [
                             E('label', { 'class': 'cbi-value-title' }, [ _('Service Status') ]),
                             E('div', { 'class': 'cbi-value-field' }, [
-                                E('span', { 'style': running ? 'color:green' : 'color:red' },
-                                    [ running ? _('Running') : _('Stopped') ])
+                                E('div', {}, [
+                                    E('span', { 'style': isRunning ? 'color:green' : 'color:red' },
+                                        [ core_mode.toUpperCase() + ': ' + (isRunning ? _('Running') : _('Stopped')) ])
+                                ])
                             ])
                         ]),
                         E('div', { 'class': 'cbi-value-field' }, [
-                            running ? E('button', {
+                            isRunning ? E('button', {
                                 'class': 'cbi-button cbi-button-negative',
                                 'click': L.bind(function() {
                                     return this.handleServiceAction('stop');
@@ -122,7 +136,7 @@ return view.extend({
                             ' ',
                             E('button', {
                                 'class': 'cbi-button cbi-button-action',
-                                'style': running ? '' : 'display:none',
+                                'style': isRunning ? '' : 'display:none',
                                 'click': L.bind(function() {
                                     return this.handleServiceAction('restart');
                                 }, this)
