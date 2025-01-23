@@ -294,15 +294,26 @@ function backupConfig(){
 }
 
 function restoreConfig(){
-  echo "Restoring your configuration...";
-  $str = restore_controller();
-  if (file_exists($str)){
-    shell_exec("/etc/neko/core/neko -x");
-    echo "Your configuration has been restored.";
-  }
-  else{
-    echo "</br>Cannot restore your configuration";
-  }
+    $str = restore_controller();
+    if (file_exists($str)){
+        shell_exec("/etc/neko/core/neko -x");
+        $filename = basename($str);
+        $response = array(
+            'status' => 'success',
+            'file' => $filename,
+            'message' => "Configuration from $filename has been restored successfully"
+        );
+    } else {
+        $response = array(
+            'status' => 'error',
+            'message' => 'Failed to restore configuration'
+        );
+    }
+    
+    ob_clean();
+    header('Content-Type: application/json');
+    echo json_encode($response, JSON_UNESCAPED_SLASHES);
+    exit;
 }
 
 if(isset($_POST["path_selector"])) {

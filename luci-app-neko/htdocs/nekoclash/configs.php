@@ -121,7 +121,7 @@ if(isset($_POST["path_selector"])) {
         echo json_encode([
             'status' => 'error',
             'title' => 'Error!',
-            'message' => 'Silakan pilih direktori yang benar',
+            'message' => 'Please select the correct directory',
             'icon' => 'error'
         ]);
         exit;
@@ -511,7 +511,7 @@ if(isset($_POST["file_action"])) {
                                             <i data-feather="box" class="feather-xs me-1"></i>
                                             <strong>VMESS:</strong> WS TLS/NTLS, HTTP, H2, GRPC
                                         </small>
-                                        <small class="d-block mb-1">
+                                        <small class="d-block">
                                             <i data-feather="lock" class="feather-xs me-1"></i>
                                             <strong>VLESS:</strong> WS TLS/NTLS, XTLS, GRPC
                                         </small>
@@ -537,7 +537,7 @@ if(isset($_POST["file_action"])) {
                         <!-- Upload & Backup Section -->
                         <div class="container container-bg border border-3 rounded-4 col-12 mb-4">
                             <h3 class="mt-3">Upload & Backup file</h3>
-                            <form action="manager.php" method="POST" enctype="multipart/form-data">
+                            <form id="uploadForm" action="manager.php" method="POST" enctype="multipart/form-data">
                                 <table class="table table-borderless">
                                     <tbody>
                                         <tr class="text-center">
@@ -785,39 +785,107 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     let formData = new FormData(this);
+    let pathSelector = formData.get('path_selector');
     
-    fetch('configs.php', {
+    if (pathSelector === 'BACKUP CONFIG') {
+        fetch('manager.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/x-gzip')) {
+                return response.blob().then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'neko_backup.tar.gz';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.status) {
+                Swal.fire({
+                    icon: data.icon,
+                    title: data.title,
+                    text: data.message,
+                    showConfirmButton: false,
+                    timer: 1500,
+                    position: 'top-end',
+                    toast: true
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+        return;
+    }
+    
+    fetch('manager.php', {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(response => response.text())
     .then(data => {
-        Swal.fire({
-            icon: data.icon,
-            title: data.title,
-            html: data.message,
-            showConfirmButton: false,
-            timer: 1500,
-            position: 'top-end',
-            toast: true
-        });
-        
-        if (data.status === 'success') {
-            loadManagerTables();
-            document.querySelector('input[name="file_upload"]').value = '';
-            document.querySelector('select[name="path_selector"]').selectedIndex = 0;
+        try {
+            let json = JSON.parse(data);
+            let uploadStatus = document.getElementById('uploadStatus');
+            uploadStatus.style.display = 'block';
+            uploadStatus.className = 'alert mt-3 alert-' + (json.status === 'success' ? 'success' : 'danger');
+            uploadStatus.textContent = json.message;
+            
+            if (json.status === 'success') {
+                this.reset();
+                refreshTables();
+            }
+        } catch(e) {
+            document.getElementById('uploadStatus').style.display = 'block';
+            document.getElementById('uploadStatus').className = 'alert mt-3 alert-info';
+            document.getElementById('uploadStatus').innerHTML = data;
         }
     })
     .catch(error => {
-        Swal.fire({
-            icon: 'error',
-            title: 'Error!',
-            text: error.toString(),
-            position: 'top-end',
-            toast: true
-        });
+        document.getElementById('uploadStatus').style.display = 'block';
+        document.getElementById('uploadStatus').className = 'alert mt-3 alert-danger';
+        document.getElementById('uploadStatus').textContent = 'Error: ' + error.message;
     });
 });
+
+function refreshTables() {
+    fetch('manager.php', {
+        method: 'POST',
+        body: new URLSearchParams({
+            'action': 'get_tables'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.config) document.getElementById('configTable').innerHTML = data.config;
+        if (data.proxy) document.getElementById('proxyTable').innerHTML = data.proxy;
+        if (data.rule) document.getElementById('ruleTable').innerHTML = data.rule;
+
+        return fetch('manager.php', {
+            method: 'POST',
+            body: new URLSearchParams({
+                'action': 'get_modals'
+            })
+        });
+    })
+    .then(response => response.json())
+    .then(data => {
+        let modalContainer = document.getElementById('modalContainer');
+        if (modalContainer) {
+            modalContainer.innerHTML = data.config + data.proxy + data.rule;
+        }
+    })
+    .catch(error => console.error('Error refreshing tables:', error));
+}
 
 function handleFileAction(action) {
     if (action.startsWith('down@')) {
@@ -1044,5 +1112,4 @@ function downloadFile(filePath) {
 </script>
 
 <?php include './footer.php'; ?>
-
 
