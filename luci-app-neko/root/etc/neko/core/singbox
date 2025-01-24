@@ -29,6 +29,7 @@ neko_dir="/etc/neko"
 neko_tmp_dir="$neko_dir/tmp"
 neko_core="$neko_dir/core"
 singbox_bin="/usr/bin/sing-box"
+reload_bin="$neko_dir/core/reload"
 neko_www="/www/nekoclash"
 singbox_config="$neko_dir/config/singbox.json"
 
@@ -75,7 +76,7 @@ singbox_start(){
     ip rule add fwmark ${id} table ${id} 2>/dev/null
     ip route add default dev ${tun_device} table ${id} 2>/dev/null
     
-    $neko_core/tun -s
+    $neko_core/tun -s >> $log
     
     if [ -f $singbox_pid_path ] ; then
         logs "- Sing-box is Running. Killing PID : `cat $singbox_pid_path`"
@@ -113,6 +114,7 @@ singbox_start(){
         uci set neko.cfg.enabled='1'
         uci commit neko
         service neko enable
+        $reload_bin "$neko_version" > /dev/null 2>&1 &
     else
         logs "- Sing-box binary not found at $singbox_bin"
     fi
@@ -126,7 +128,7 @@ singbox_stop(){
     ip route del default dev ${tun_device} table ${id} 2>/dev/null
 
     logs "- Cleaning up TUN mode"
-    $neko_core/tun -k
+    $neko_core/tun -k >> $log
     
     if [ -f $singbox_pid_path ] ; then
         logs "- Killing Sing-box PID : `cat $singbox_pid_path`"
