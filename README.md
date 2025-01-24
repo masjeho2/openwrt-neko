@@ -23,16 +23,16 @@ Packages list
 ---
 | Packages | Version | Arch | Information |
 |---|---|---|---|
-| [luci-app-neko](https://github.com/nosignals/openwrt-neko/tree/main/luci-app-neko) | ` 1.2.2-beta ` | <div align="center"> [all-generic](https://github.com/nosignals/openwrt-neko/releases/download/luci-app-neko_1.2.2-beta/luci-app-neko_1.2.2-beta_all.ipk) </div> | Include `geosite` and `geoip` files |
-| [mihomo](https://github.com/nosignals/openwrt-neko/tree/main/mihomo) | ` 1.18.8-2 ` | <div align="center"> [x86](https://github.com/nosignals/openwrt-neko/releases/download/mihomo_1.18.8/mihomo_1.18.8-2_x86_64.ipk)</br>[aarch64-generic](https://github.com/nosignals/openwrt-neko/releases/download/mihomo_1.18.8/mihomo_1.18.8-2_aarch64_generic.ipk)</br>[arm_cortex-a7_neon](https://github.com/nosignals/openwrt-neko/releases/download/mihomo_1.18.8/mihomo_1.18.8-2_arm_cortex-a7_neon-vfpv4.ipk) </div> | Latest stable version on [MetaCubeXD](https://github.com/MetaCubeX/mihomo/) |
-| ? | ? | ? | ? |
+| [luci-app-neko](https://github.com/nosignals/openwrt-neko/tree/main/luci-app-neko) | ` 1.2.1-beta ` | <div align="center"> [all-generic](https://github.com/nosignals/openwrt-neko/releases/download/luci-app-neko_1.2.1-beta/luci-app-neko_1.2.1-beta_all.ipk) </div> | Include `geosite` and `geoip` files |
+| [mihomo](https://github.com/nosignals/openwrt-neko/tree/main/mihomo) | ` 1.18.7-1 ` | <div align="center"> [x86](https://github.com/nosignals/openwrt-neko/releases/download/mihomo_1.18.7/mihomo_1.18.7-1_x86_64.ipk)</br>[aarch64-generic](https://github.com/nosignals/openwrt-neko/releases/download/mihomo_1.18.7/mihomo_1.18.7-1_aarch64_generic.ipk)</br>[arm_cortex-a7_neon](https://github.com/nosignals/openwrt-neko/releases/download/mihomo_1.18.7/mihomo_1.18.7-1_arm_cortex-a7_neon-vfpv4.ipk) </div> | Latest stable version on [MetaCubeXD](https://github.com/MetaCubeX/mihomo/) |
+| [sing-box](https://github.com/nosignals/openwrt-neko/tree/main/sing-box) | ` 1.10.7 ` | - | [Original Repository](https://github.com/SagerNet/sing-box) |
 
 Installation
 ---
 1. Downloads ` mihomo_xxxx.ipk ` and ` luci-app-neko_xxx.ipk ` from releases
-2. install requirement depedencies `php8, php8-cgi, kmod-tun, bash, curl, jq, ip-full, ca-bundle`
-3. Install firstly ` mihomo_xxxx.ipk `
-4. After installing ` mihomo `, install ` luci-app-neko_xxx.ipk `
+2. install requirement depedencies `php8 php8-cgi kmod-tun bash curl jq ip-full ca-bundle`
+3. Install firstly ` mihomo_xxxx.ipk ` and ` sing-box_xxxx.ipk `
+4. After installing ` mihomo ` and ` sing-box `, install ` luci-app-neko_xxx.ipk `
 5. Done, check your LUCI on openwrt
 
 Updating
@@ -64,35 +64,21 @@ nosignal is gone
 
 Credit
 ---
-- nosignals
+- [nosignals](https://github.com/nosignals)
+- [bobbyunknown](https://github.com/bobbyunknown)
 
 Screenshoot
 ---
-<details><summary>Home</summary>
+<details><summary>Home - Mihomo</summary>
  <p>
-  <img src="https://raw.githubusercontent.com/nosignals/neko/main/img/home.png" alt="home">
+  <img src="https://raw.githubusercontent.com/nosignals/openwrt-neko/refs/heads/dev/img/mihomo.png" alt="home">
  </p>
 </details>
 
-<details><summary>Dasboard</summary>
- <p>
-  <img src="https://raw.githubusercontent.com/nosignals/neko/main/img/dashboard.png" alt="dash">
- </p>
-</details>
-
-<details><summary>Config - Home</summary>
-  <img src="https://raw.githubusercontent.com/nosignals/neko/main/img/config.png" alt="cfg">
-</details>
-<details><summary>Config - Proxy</summary>
-  <img src="https://raw.githubusercontent.com/nosignals/neko/main/img/config-proxy.png" alt="proxy">
-</details>
-<details><summary>Config - Rules</summary>
-  <img src="https://raw.githubusercontent.com/nosignals/neko/main/img/config-rules.png" alt="rules">
-</details>
-<details><summary>Config - Converter</summary>
-  <img src="https://raw.githubusercontent.com/nosignals/neko/main/img/config-converter.png" alt="conv">
+<details><summary>Home - Sing-Box</summary>
+  <img src="https://raw.githubusercontent.com/nosignals/openwrt-neko/refs/heads/dev/img/sing-box.png" alt="cfg">
 </details>
 
 <details><summary>Settings</summary>
-  <img src="https://raw.githubusercontent.com/nosignals/neko/main/img/setting.png" alt="setting">
+  <img src="https://raw.githubusercontent.com/nosignals/openwrt-neko/refs/heads/dev/img/setting.png" alt="setting">
 </details>
