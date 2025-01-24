@@ -236,41 +236,84 @@ function restore_controller(){
 }
 
 function backupConfig(){
-  shell_exec("/etc/neko/core/neko -b");
-  $dir_path = "/tmp";
-  $file_name = shell_exec("ls /tmp/ | grep neko");
-  $file_path = trim("$dir_path/$file_name");
-  echo $file_path;
-  if (file_exists($file_path)) {
-    echo "Backing configuration, please wait...";
-    ob_clean();
-    header('Content-Description: File Transfer');
-    header('Content-Type: application/octet-stream');
-    header('Content-Disposition: attachment; filename='.basename($file_name));
-    header('Content-Transfer-Encoding: binary');
-    header('Expires: 0');
-    header('Cache-Control: must-revalidate');
-    header('Pragma: public');
-    header('Content-Length: ' . filesize($file_path));
-  }
-  ob_clean();
-  flush();
-  sleep (2);
-  readfile($file_path);
-  shell_exec("rm -r $file_path");
-  exit;
+    try {
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        shell_exec("/etc/neko/core/neko -b");
+        
+        sleep(1);
+        
+        $backup_files = glob("/tmp/neko_backup_*.tar.gz");
+        if (empty($backup_files)) {
+            throw new Exception('Backup file not found');
+        }
+        
+        usort($backup_files, function($a, $b) {
+            return filemtime($b) - filemtime($a);
+        });
+        $file_path = $backup_files[0];
+        
+        if (!file_exists($file_path)) {
+            throw new Exception('Backup file not found or not accessible');
+        }
+
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/x-gzip');
+        header('Content-Disposition: attachment; filename="'.basename($file_path).'"');
+        header('Content-Transfer-Encoding: binary');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($file_path));
+        
+        if (!readfile($file_path)) {
+            throw new Exception('Failed to send file');
+        }
+        
+        foreach ($backup_files as $old_file) {
+            if ($old_file != $file_path) {
+                @unlink($old_file);
+            }
+        }
+        
+        @unlink($file_path);
+        exit;
+        
+    } catch (Exception $e) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'status' => 'error',
+            'title' => 'Error!',
+            'message' => $e->getMessage(),
+            'icon' => 'error'
+        ]);
+        exit;
+    }
 }
 
 function restoreConfig(){
-  echo "Restoring your configuration...";
-  $str = restore_controller();
-  if (file_exists($str)){
-    shell_exec("/etc/neko/core/neko -x");
-    echo "Your configuration has been restored.";
-  }
-  else{
-    echo "</br>Cannot restore your configuration";
-  }
+    $str = restore_controller();
+    if (file_exists($str)){
+        shell_exec("/etc/neko/core/neko -x");
+        $filename = basename($str);
+        $response = array(
+            'status' => 'success',
+            'file' => $filename,
+            'message' => "Configuration from $filename has been restored successfully"
+        );
+    } else {
+        $response = array(
+            'status' => 'error',
+            'message' => 'Failed to restore configuration'
+        );
+    }
+    
+    ob_clean();
+    header('Content-Type: application/json');
+    echo json_encode($response, JSON_UNESCAPED_SLASHES);
+    exit;
 }
 
 if(isset($_POST["path_selector"])) {
@@ -320,3 +363,4 @@ if(isset($_POST['action'])) {
     }
 }
 ?>
+
