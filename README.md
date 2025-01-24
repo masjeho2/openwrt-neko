@@ -71,14 +71,14 @@ Screenshoot
 ---
 <details><summary>Home - Mihomo</summary>
  <p>
-  <img src="https://raw.githubusercontent.com/nosignals/neko/dev/img/mihomo.png" alt="home">
+  <img src="https://raw.githubusercontent.com/nosignals/openwrt-neko/refs/heads/dev/img/mihomo.png" alt="home">
  </p>
 </details>
 
 <details><summary>Home - Sing-Box</summary>
-  <img src="https://raw.githubusercontent.com/nosignals/neko/dev/img/sing-box.png" alt="cfg">
+  <img src="https://raw.githubusercontent.com/nosignals/openwrt-neko/refs/heads/dev/img/sing-box.png" alt="cfg">
 </details>
 
 <details><summary>Settings</summary>
-  <img src="https://raw.githubusercontent.com/nosignals/neko/dev/img/setting.png" alt="setting">
+  <img src="https://raw.githubusercontent.com/nosignals/openwrt-neko/refs/heads/dev/img/setting.png" alt="setting">
 </details>
