@@ -32,16 +32,6 @@ $themeDir = "$neko_www/assets/theme";
 $arrFiles = array();
 $arrFiles = glob("$themeDir/*.css");
 
-$neko_version = exec("opkg list-installed | grep luci-app-neko | cut -d ' - ' -f3");
-$neko_latest = exec("curl -m 5 -f -s https://raw.githubusercontent.com/nosignals/openwrt-neko/main/luci-app-neko/Makefile | grep PKG_VERSION: | cut -d= -f2");
-$stat = 0;
-if ($neko_version == $neko_latest){
-    $stat = 0;
-}
-else {
-    $stat = 1;
-}
-
 for($x=0;$x<count($arrFiles);$x++) $arrFiles[$x] = substr($arrFiles[$x], strlen($themeDir)+1);
 
 if(isset($_POST['themechange'])){
@@ -197,23 +187,50 @@ $fwstatus=shell_exec("uci get neko.cfg.new_interface");
                             </form>
                         </tr>
                         <tr>
-                            <td class="col-1">Client Version</td>
-                            <td class="col-4">
-                                <div class="form-control text-center" id="cliver">-</div>
-                            </td>
-                            <td class="col-1">
-                                <form action="settings.php" method="post">
-                                    <button type="submit" name="neko" value="update" class="btn btn-primary <?php if($stat==0) echo "disabled " ?>col-10">Update</button>
-                                </form>
+                            <td class="col-3">Client Version</td>
+                            <td class="col-9">
+                                <div class="mb-2">
+                                    <div class="form-control text-center" id="cliver">Loading...</div>
+                                </div>
+                                <div class="d-flex">
+                                    <form action="settings.php" method="post" class="w-100">
+                                        <button type="submit" name="neko" value="update" id="updateBtn" class="btn btn-primary w-100 disabled">
+                                            Update
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         <tr>
-                            <td class="col-1">Core Version</td>
-                            <td class="col-4">
-                                <div class="form-control text-center" id="corever">-</div>
+                            <td class="col-3">Mihomo Version</td>
+                            <td class="col-9">
+                                <div class="mb-2">
+                                    <div class="form-control text-center" id="mihomover">-</div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary flex-fill" data-bs-toggle="modal" data-bs-target="#coreModal" data-core-type="mihomo">
+                                        Change Core
+                                    </button>
+                                    <a href="https://github.com/nosignals/openwrt-neko/releases" target="_blank" class="btn btn-outline-primary flex-fill">
+                                        Update Core
+                                    </a>
+                                </div>
                             </td>
-                            <td class="col-1">
-                                <a class="btn btn-primary col-10" target="_blank" href="https://github.com/nosignals/openwrt-neko/releases">Update</a>
+                        </tr>
+                        <tr>
+                            <td class="col-3">Sing-box Version</td>
+                            <td class="col-9">
+                                <div class="mb-2">
+                                    <div class="form-control text-center" id="singboxver">-</div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-primary flex-fill" data-bs-toggle="modal" data-bs-target="#coreModal" data-core-type="singbox">
+                                        Change Core
+                                    </button>
+                                    <a href="https://github.com/nosignals/openwrt-neko/releases" target="_blank" class="btn btn-outline-primary flex-fill">
+                                        Update Core
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     </tbody>
@@ -249,7 +266,7 @@ $fwstatus=shell_exec("uci get neko.cfg.new_interface");
                                     <div class="d-grid">
                                         <a class="btn btn-outline-info" target="_blank" href="https://github.com/nosignals">
                                             <i data-feather="github" class="feather-sm me-2"></i>
-                                            Github
+                                            Nosignals
                                         </a>
                                     </div>
                                 </div>
@@ -263,9 +280,25 @@ $fwstatus=shell_exec("uci get neko.cfg.new_interface");
                                 </div>
                                 <div class="col-md-6">
                                     <div class="d-grid">
+                                        <a class="btn btn-outline-info" target="_blank" href="https://github.com/bobbyunknown">
+                                            <i data-feather="github" class="feather-sm me-2"></i>
+                                            BobbyUnknown
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-grid">
                                         <a class="btn btn-outline-info" target="_blank" href="https://github.com/MetaCubeX/mihomo">
                                             <i data-feather="box" class="feather-sm me-2"></i>
                                             Mihomo
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="d-grid">
+                                        <a class="btn btn-outline-info" target="_blank" href="https://github.com/SagerNet/sing-box">
+                                            <i data-feather="cpu" class="feather-sm me-2"></i>
+                                            Singbox
                                         </a>
                                     </div>
                                 </div>
@@ -277,4 +310,198 @@ $fwstatus=shell_exec("uci get neko.cfg.new_interface");
                 </div>
             </div>
         </div>
+
+        <!-- Core Update Modal -->
+        <div class="modal fade" id="coreModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Change Core Version: <span id="coreTypeTitle">-</span></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- Versions List -->
+                            <div class="col-md-6">
+                                <h6>Available Versions:</h6>
+                                <div id="versionsList" class="border rounded p-3" style="max-height: 300px; overflow-y: auto;">
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Log Area -->
+                            <div class="col-md-6">
+                                <h6>Update Log:</h6>
+                                <div id="updateLog" class="border rounded p-2" 
+                                     style="height: 300px; overflow-y: auto; font-family: monospace; font-size: 12px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="updateCore">Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 <?php include './footer.php'; ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const cliverElement = document.getElementById('cliver');
+    const updateBtn = document.getElementById('updateBtn');
+    
+    function formatVersion(current, latest) {
+        if (current === latest) {
+            return `${current} - Latest`;
+        }
+        return `${current} - New Version v.${latest}`;
+    }
+    
+    fetch('./lib/version.php')
+        .then(response => response.json())
+        .then(data => {
+            cliverElement.textContent = formatVersion(data.current, data.latest);
+            
+            if (data.needsUpdate) {
+                updateBtn.classList.remove('disabled');
+            } else {
+                updateBtn.classList.add('disabled');
+            }
+        })
+        .catch(error => {
+            cliverElement.textContent = 'Failed to check version';
+            updateBtn.classList.add('disabled');
+        });
+});
+
+function loadVersions(type) {
+    fetch(`./lib/update_core.php?action=get_versions&type=${type}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            const container = document.getElementById(`${type}Versions`);
+            container.innerHTML = data.versions.map((version, index) => `
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="${type}Version" 
+                           id="${type}Version${index}" value="${version}">
+                    <label class="form-check-label" for="${type}Version${index}">
+                        Version ${version}
+                    </label>
+                </div>
+            `).join('');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById(`${type}Versions`).innerHTML = 
+                '<div class="alert alert-danger">Failed to load versions</div>';
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('coreModal');
+    const logArea = document.getElementById('updateLog');
+    let currentCoreType = '';
+    let logInterval;
+
+    function readLog() {
+        fetch('./lib/update_core.php?action=get_log')
+            .then(response => response.json())
+            .then(data => {
+                if (data.log) {
+                    logArea.innerHTML = data.log.replace(/\n/g, '<br>');
+                    logArea.scrollTop = logArea.scrollHeight;
+                }
+            });
+    }
+
+    modal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        currentCoreType = button.getAttribute('data-core-type');
+        
+        const coreTitle = currentCoreType.charAt(0).toUpperCase() + currentCoreType.slice(1);
+        document.getElementById('coreTypeTitle').textContent = coreTitle;
+        
+        document.getElementById('versionsList').innerHTML = `
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        `;
+        document.getElementById('updateLog').innerHTML = '';
+        
+        fetch(`./lib/update_core.php?action=get_versions&type=${currentCoreType}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                
+                const container = document.getElementById('versionsList');
+                container.innerHTML = data.versions.map((version, index) => `
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="coreVersion" 
+                               id="version${index}" value="${version}">
+                        <label class="form-check-label" for="version${index}">
+                            Version ${version}
+                        </label>
+                    </div>
+                `).join('');
+            })
+            .catch(error => {
+                document.getElementById('versionsList').innerHTML = 
+                    '<div class="alert alert-danger">Failed to load versions</div>';
+            });
+    });
+
+    modal.addEventListener('hide.bs.modal', function () {
+        if (logInterval) {
+            clearInterval(logInterval);
+            logInterval = null;
+        }
+        
+        document.getElementById('versionsList').innerHTML = '';
+        document.getElementById('updateLog').innerHTML = '';
+    });
+
+    document.getElementById('updateCore').addEventListener('click', function() {
+        const selectedVersion = document.querySelector('input[name="coreVersion"]:checked');
+        if (!selectedVersion) {
+            alert('Please select a version');
+            return;
+        }
+
+        logInterval = setInterval(readLog, 1000);
+
+        const formData = new FormData();
+        formData.append('type', currentCoreType);
+        formData.append('version', selectedVersion.value);
+
+        fetch('./lib/update_core.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) throw new Error(data.error);
+            
+            clearInterval(logInterval);
+            
+            readLog();
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        })
+        .catch(error => {
+            alert('Failed to update core: ' + error.message);
+            clearInterval(logInterval);
+        });
+    });
+});
+</script>
