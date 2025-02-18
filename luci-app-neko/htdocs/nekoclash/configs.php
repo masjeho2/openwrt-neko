@@ -796,10 +796,12 @@ document.getElementById('uploadForm').addEventListener('submit', function(e) {
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/x-gzip')) {
                 return response.blob().then(blob => {
+                    const now = new Date();
+                    const date = now.toISOString().split('T')[0];
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'neko_backup.tar.gz';
+                    a.download = `neko_backup_${date}.tar.gz`;
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
