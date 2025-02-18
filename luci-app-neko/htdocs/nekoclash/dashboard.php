@@ -71,6 +71,7 @@ $secret = $config['secret'];
 
 $yacd_link = $_SERVER['HTTP_HOST'] . ":" . $port . "/ui/meta/?hostname=" . $_SERVER['HTTP_HOST'] . "&port=" . $port . "&secret=" . $secret;
 $metacubexd_link = $_SERVER['HTTP_HOST'] . ":" . $port . "/ui/metacubexd/?hostname=" . $_SERVER['HTTP_HOST'] . "&port=" . $port . "&secret=" . $secret;
+$zashboard_link = $_SERVER['HTTP_HOST'] . ":" . $port . "/ui/zashboard/?hostname=" . $_SERVER['HTTP_HOST'] . "&port=" . $port . "&secret=" . $secret;
 
 ?>
 <?php 
@@ -95,6 +96,10 @@ $metacubexd_link = $_SERVER['HTTP_HOST'] . ":" . $port . "/ui/metacubexd/?hostna
                             <a class="btn btn-outline-primary" target="_blank" href="http://<?=$metacubexd_link ?>">
                                 <i data-feather="external-link" class="feather-sm me-2"></i>
                                 METACUBEXD
+                            </a>
+                            <a class="btn btn-outline-primary" target="_blank" href="http://<?=$zashboard_link ?>">
+                                <i data-feather="external-link" class="feather-sm me-2"></i>
+                                ZASHBOARD
                             </a>
                         <?php else: ?>
                             <a class="btn btn-outline-primary" target="_blank" href="http://<?=$yacd_link ?>">
