@@ -246,21 +246,29 @@ if ($core_mode == 'mihomo') {
                 <div class="card mb-4">
                     <div class="card-header d-flex align-items-center">
                         <i data-feather="bar-chart-2" class="feather-sm me-2"></i>
-                        <h5 class="card-title mb-0">Traffic Statistics</h5>
+                        <h6 class="card-title mb-0">Traffic Statistics</h6>
                     </div>
                     <div class="card-body">
-                        <!-- Statistik di tengah -->
-                        <div class="row justify-content-center text-center mb-4">
-                            <div class="col-md-6 col-xl-4">
-                                <h2 class="mb-2"><span id="downtotal">-</span></h2>
-                                <div class="text-muted">Download</div>
+                        <div class="row g-0 justify-content-center text-center mb-4">
+                            <div class="col-6">
+                                <h6 class="text-muted mb-2">Total Download</h6>
+                                <h5 class="mb-2"><span id="total-download">0 B</span></h5>
                             </div>
-                            <div class="col-md-6 col-xl-4">
-                                <h2 class="mb-2"><span id="uptotal">-</span></h2>
-                                <div class="text-muted">Upload</div>
+                            <div class="col-6">
+                                <h6 class="text-muted mb-2">Total Upload</h6>
+                                <h5 class="mb-2"><span id="total-upload">0 B</span></h5>
                             </div>
                         </div>
-                        <!-- Chart dengan ukuran yang lebih kecil -->
+                        <div class="row g-0 justify-content-center text-center mb-4">
+                            <div class="col-6">
+                                <h5 class="mb-2"><span id="downtotal">-</span></h5>
+                                <div class="text-muted small">Download Rate</div>
+                            </div>
+                            <div class="col-6">
+                                <h5 class="mb-2"><span id="uptotal">-</span></h5>
+                                <div class="text-muted small">Upload Rate</div>
+                            </div>
+                        </div>
                         <div class="chart" style="height: 150px;">
                             <canvas id="trafficChart"></canvas>
                         </div>
@@ -295,140 +303,6 @@ if ($core_mode == 'mihomo') {
         </div>
     </div>
 <script>
-function formatBytes(bytes) {
-    if (bytes < 1024000) return (bytes/1024).toFixed(1) + " KB";
-    if (bytes < 1024000000) return (bytes/1024000).toFixed(1) + " MB";
-    return (bytes/1024000000).toFixed(2) + " GB";
-}
-
-
-let labels = [];
-let downloadData = [];
-let uploadData = [];
-let trafficChart;
-
-function initChart() {
-    const ctx = document.getElementById('trafficChart');
-    if (!ctx) return;
-
-    trafficChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Download',
-                data: downloadData,
-                borderColor: '#3B7DDD',
-                borderWidth: 2,
-                fill: false,
-                tension: 0.3,
-                pointRadius: 0
-            }, {
-                label: 'Upload',
-                data: uploadData,
-                borderColor: '#28A745',
-                borderWidth: 2,
-                fill: false,
-                tension: 0.3,
-                pointRadius: 0
-            }]
-        },
-        options: {
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    position: 'top'
-                }
-            },
-            scales: {
-                x: {
-                    grid: {
-                        display: false
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        borderDash: [2, 2]
-                    }
-                }
-            }
-        }
-    });
-}
-
-function updateLogs() {
-    const logsCollapse = document.getElementById('logsCollapse');
-    if (!logsCollapse.classList.contains('show')) return;
-
-
-    fetch('./lib/log.php?data=neko')
-        .then(response => response.text())
-        .then(data => {
-            const logs = document.getElementById('logs');
-            if (logs) {
-                logs.value = data;
-                logs.scrollTop = logs.scrollHeight;
-            }
-        });
-
-    fetch('./lib/log.php?data=bin')
-        .then(response => response.text())
-        .then(data => {
-            const binLogs = document.getElementById('bin_logs');
-            if (binLogs) {
-                binLogs.value = data;
-                binLogs.scrollTop = binLogs.scrollHeight;
-            }
-        });
-}
-
-function updateStats() {
-    fetch('./lib/up.php')
-        .then(response => response.text())
-        .then(upResult => {
-            const uptotal = document.getElementById('uptotal');
-            if (uptotal) uptotal.textContent = upResult;
-
-            fetch('./lib/down.php')
-                .then(response => response.text())
-                .then(downResult => {
-                    const downtotal = document.getElementById('downtotal');
-                    if (downtotal) downtotal.textContent = downResult;
-
-                    if (trafficChart) {
-                        const now = new Date();
-                        const timeStr = now.getHours() + ':' + 
-                                      String(now.getMinutes()).padStart(2, '0') + ':' + 
-                                      String(now.getSeconds()).padStart(2, '0');
-
-                        labels.push(timeStr);
-                        downloadData.push(parseFloat(downResult));
-                        uploadData.push(parseFloat(upResult));
-
-                        if (labels.length > 10) {
-                            labels.shift();
-                            downloadData.shift();
-                            uploadData.shift();
-                        }
-
-                        trafficChart.update();
-                    }
-                });
-        });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    initChart();
-    
-    setInterval(updateLogs, 1000);
-    
-    setInterval(updateStats, 1000);
-    
-    document.getElementById('logsCollapse').addEventListener('shown.bs.collapse', updateLogs);
-});
-
 document.addEventListener('DOMContentLoaded', function() {
     <?php if($show_ip == '1' || $show_isp == '1') { ?>
     fetch('http://ip-api.com/json/')
