@@ -14,7 +14,7 @@ on:
       singbox_version:
         description: 'Sing-box version'
         required: true
-        default: '1.10.7'
+        default: '1.12.0-alpha.13'
         type: string
 jobs: 
   build_ipk:
@@ -48,7 +48,7 @@ jobs:
               cp -rf ./sing-box ./feeds
         
       - name: Building Kernel Packages
-        uses: nosignals/gh-action-sdk@main
+        uses: masjeho2/gh-action-sdk@main
         env:
           ARCH: ${{ matrix.arch }}-${{ matrix.release }}
           ARTIFACTS_DIR: ${{ github.workspace }}/artifacts
