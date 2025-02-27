@@ -48,7 +48,7 @@ jobs:
               cp -rf ./sing-box ./feeds
         
       - name: Building Kernel Packages
-        uses: masjeho2/gh-action-sdk@main
+        uses: nosignals/gh-action-sdk@main
         env:
           ARCH: ${{ matrix.arch }}-${{ matrix.release }}
           ARTIFACTS_DIR: ${{ github.workspace }}/artifacts
